@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# IDE and editor files
+.vscode/
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

@@ -1,0 +1,16 @@
+ {
+   "name": "buildship-app-mdx",
+   "version": "1.0.0",
+   "description": "MDX files for buildship app",
+   "type": "module",
+   "scripts": {
+     "dev": "node compile.mjs --dev",
+     "build": "node compile.mjs"
+   },
+   "dependencies": {
+     "chokidar": "^4.0.3",
+     "esbuild": "^0.25.3",
+     "glob": "^11.0.2",
+     "mdx-bundler": "^10.1.1"
+   }
+ }
