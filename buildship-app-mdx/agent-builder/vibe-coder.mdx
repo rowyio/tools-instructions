@@ -1,0 +1,144 @@
+import { useMemo } from "react";
+
+{/**
+ * @param {import('../types/preview').Props} props - Component props
+ */}
+
+export const VibeCoderAgent = (props) => {
+    const openApiSpec = useMemo(
+        () => JSON.stringify(props.toolFlowToOpenApi([props.flow], props.host), null, 2),
+        [props.flow, props.host],
+    );
+    return (
+        <>
+            <Typography sx={(theme) => ({ ...theme.typography.headline6, marginBottom: "16px" })}>
+                Vibe Coder - Setup Guide
+            </Typography>
+            <ClipboardField
+                label="Endpoint URL"
+                content={`${props.host}/executeWorkflow/${props.flowId}/${props.trigger.id}`}
+            />
+
+            <Typography sx={{ marginTop: "16px" }}>Code Snippet</Typography>
+
+            <Typography
+                sx={(theme) => ({ color: theme.palette.text[400], marginTop: "4px" })}
+            >
+                {"Copy and paste the code snippet to your app or website."}
+            </Typography>
+            <div style={{ marginTop: "16px" }}>
+                <CodeSamples
+                    samples={[
+                        {
+                            code: `async function callEndpoint(${Object.keys(props.inputs.properties ?? {}).join(", ")}) {
+    const url = "${props.host}/executeWorkflow/${props.flowId}/${props.trigger.id}";
+    ${(props.triggerValues?.["config.method"] === "GET" || Object.keys(props.inputs.properties ?? {}).length === 0)
+                                    ? "const data = {}"
+                                    : `const data = {
+        ${Object.keys(props.inputs.properties ?? {})
+                                        .map((key) => key + ": " + key)
+                                        .join(",\n")}
+    }`
+                                }
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ${props.triggerValues?.["config.method"] === "GET" ? "" : "body: JSON.stringify(data)"}
+        });
+        const result = await response.json();
+        console.log('Success:', result);
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}`,
+                            language: "js",
+                            label: "JavaScript",
+                        },
+                    ]}
+                />
+            </div>
+
+            {(() => {
+                const prompt = `Create an intuitive & responsive webapp using the given endpoint and the example inputs
+
+Rules:
+- Use only the inputs given. 
+- Include validation for required fields if needed.
+- Handle the output properly depending what it returns (string, number, etc) specially in case of returning lists or json outputs.
+
+async function callEndpoint(${Object.keys(props.inputs.properties ?? {}).join(", ")}) {
+    const url = '${props.host}${props.triggerValues?.["config.path"]}';
+    ${props.triggerValues?.["config.method"] === "GET"
+                        ? ""
+                        : `const data = {
+            ${Object.keys(props.inputs.properties ?? {})
+                            .map((key) => `${key}: ${key}`)
+                            .join(",\n            ")}
+        }`
+                    }
+    
+    try {
+        const response = await fetch(url, {
+            method: '${props.triggerValues?.["config.method"]}',
+            headers: {${props.triggerValues?.["config.method"] === "GET"
+                        ? ""
+                        : `
+                'Content-Type': '${props.triggerValues?.["config.requestContentType"]}',`
+                    }},
+            ${props.triggerValues?.["config.method"] === "GET" ? "" : "body: JSON.stringify(data)"}
+        });
+        
+        const result = await response.json();
+        console.log('Success:', result);
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+Here are sample inputs: 
+${props.getInputTypes ? props.getInputTypes(props.inputs || {}) : `{
+  ${Object.entries(props.inputs?.properties ?? {}).map(([key, value]) => `${key}: ${value.type}`).join(",\n    ")}
+}`}
+
+
+The output of this endpoint is:
+${props.getInputTypes ? props.getInputTypes(props.output || {}) : `{
+  ${Object.entries(props.output?.properties ?? {}).map(([key, value]) => `${key}: ${value.type}`).join(",\n    ")}
+}`}
+`;
+
+                return (
+                    <>
+                        <Typography sx={{ marginTop: "16px" }}>AI Handoff</Typography>
+                        <Typography
+                            sx={(theme) => ({ color: theme.palette.text[400], marginTop: "4px" })}
+                        >
+                            Paste the following prompt into your AI App builder to generate the
+                            frontend by connecting to your BuildShip API endpoint and creating the
+                            UI you need.
+                        </Typography>
+
+                        <div
+                            style={{
+                                width: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                margin: "16px 0 ",
+                            }}
+                        >
+                            <Typography>Prompt</Typography>
+                            <CopyButton variant="expanded" label="Copy prompt" content={prompt} />
+                        </div>
+
+                        <CodeViewer copy={false} code={prompt} />
+                    </>
+                );
+            })()}
+        </>
+    )
+};

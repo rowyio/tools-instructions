@@ -4,6 +4,7 @@ import { GenericAgent } from "./generic-agent.mdx";
 import { NodeJsIntegration } from "./nodejs-integration.mdx";
 import { WebIntegration } from "./web-integration.mdx";
 import { PythonIntegration } from "./python-integration.mdx";
+import { VibeCoderAgent } from "./vibe-coder.mdx";
 
 export const AgentSelector = (props) => {
   const [selectedOption, setSelectedOption] = props.useState("generic-agent");
@@ -42,6 +43,7 @@ export const AgentSelector = (props) => {
           value={selectedOption}
           onChange={(event) => setSelectedOption(event.target.value)}
           options={[
+            { value: "vibe-coder", render: "Vibe Coder Agent" },
             { value: "11labs", render: "ElevenLabs" },
             { value: "claude", render: "Claude Desktop (MCP Server)" },
             { value: "nodejs", render: "Node.js Fetch Implementation" },
@@ -61,6 +63,12 @@ export const AgentSelector = (props) => {
           width: "100%",
         }}
       >
+        {selectedOption === "vibe-coder" && (
+          <VibeCoderAgent
+            {...props}
+            openApiSpec={JSON.stringify(props.toolFlowToOpenApi([props.flow], props.host), null, 2)}
+          />
+        )}
         {selectedOption === "claude" && <Claude flowLabel={camelize(props.flowLabel ?? "")} {...props} />}
         {selectedOption === "11labs" && <ElevenLabs {...props} />}
         {selectedOption === "generic-agent" && <GenericAgent {...props} />}
