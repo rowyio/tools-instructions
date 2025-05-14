@@ -2,7 +2,6 @@ import Claude from "./claude.mdx";
 import { ElevenLabs } from "./elevenlabs.mdx";
 import { GenericAgent } from "./generic-agent.mdx";
 import { NodeJsIntegration } from "./nodejs-integration.mdx";
-import { WebIntegration } from "./web-integration.mdx";
 import { PythonIntegration } from "./python-integration.mdx";
 import { VibeCoderAgent } from "./vibe-coder.mdx";
 
@@ -48,7 +47,6 @@ export const AgentSelector = (props) => {
             { value: "claude", render: "Claude Desktop (MCP Server)" },
             { value: "nodejs", render: "Node.js Fetch Implementation" },
             { value: "python", render: "Python Requests Implementation" },
-            { value: "web", render: "Web Browser Implementation" },
             { value: "generic-agent", render: "Default Setup Guide" },
           ]}
         />
@@ -74,7 +72,6 @@ export const AgentSelector = (props) => {
         {selectedOption === "generic-agent" && <GenericAgent {...props} />}
         {selectedOption === "nodejs" && <NodeJsIntegration {...props} />}
         {selectedOption === "python" && <PythonIntegration {...props} />}
-        {selectedOption === "web" && <WebIntegration {...props} />}
       </div>
     </div>
   );
