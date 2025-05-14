@@ -5,10 +5,18 @@ import { useMemo } from "react";
  */}
 
 export const VibeCoderAgent = (props) => {
-    const openApiSpec = useMemo(
-        () => JSON.stringify(props.toolFlowToOpenApi([props.flow], props.host), null, 2),
-        [props.flow, props.host],
-    );
+    const inputProperties = props.inputs.properties || {};
+
+    const formatInputsParams = (indent = 2) => {
+        const indentStr = " ".repeat(indent);
+        return Object.entries(inputProperties)
+            .map(([key, schema]) => {
+                const valueStr = schema.type === "number" ? "0" : '""';
+                return `${indentStr}${key}: ${valueStr}, // ${schema.title || key}`;
+            })
+            .join("\n\t");
+    };
+
     return (
         <>
             <Typography sx={(theme) => ({ ...theme.typography.headline6, marginBottom: "16px" })}>
@@ -30,22 +38,24 @@ export const VibeCoderAgent = (props) => {
                 <CodeSamples
                     samples={[
                         {
-                            code: `async function callEndpoint(${Object.keys(props.inputs.properties ?? {}).join(", ")}) {
+                            code: `/**
+ * Function to call workflow using fetch
+ * @param {object} params - Input parameters for the workflow
+ * @returns {Promise<object>} - The workflow result
+ */
+                            
+async function callEndpoint( params ) {
     const url = "${props.host}/executeWorkflow/${props.flowId}/${props.trigger.id}";
-    ${(props.triggerValues?.["config.method"] === "GET" || Object.keys(props.inputs.properties ?? {}).length === 0)
-                                    ? "const data = {}"
-                                    : `const data = {
-        ${Object.keys(props.inputs.properties ?? {})
-                                        .map((key) => key + ": " + key)
-                                        .join(",\n")}
-    }`
-                                }
+    const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
+    
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ${props.triggerValues?.["config.method"] === "GET" ? "" : "body: JSON.stringify(data)"}
+                'BUILDSHIP_API_KEY': apiKey
+            },
+            body: JSON.stringify(params)
         });
         const result = await response.json();
         console.log('Success:', result);
@@ -53,7 +63,25 @@ export const VibeCoderAgent = (props) => {
     } catch (error) {
         console.error('Error:', error);
     }
-}`,
+}
+
+
+// Example usage
+async function executeExample() {
+    const params = {
+    ${formatInputsParams()}
+    };
+  
+  try {
+    const result = await callWorkflow(params);
+    console.log('Workflow result:', result);
+    return result;
+  } catch (error) {
+    console.error('Failed to execute workflow:', error);
+  }
+}
+
+executeExample();`,
                             language: "js",
                             label: "JavaScript",
                         },
@@ -69,26 +97,33 @@ Rules:
 - Include validation for required fields if needed.
 - Handle the output properly depending what it returns (string, number, etc) specially in case of returning lists or json outputs.
 
+Create an intuitive & responsive webapp using the given endpoint and the example inputs
+
+Rules:
+- Use only the inputs given.
+- Include validation for required fields if needed.
+- Handle the output properly depending what it returns (string, number, etc) specially in case of returning lists or json outputs.
+
 async function callEndpoint(${Object.keys(props.inputs.properties ?? {}).join(", ")}) {
-    const url = '${props.host}${props.triggerValues?.["config.path"]}';
-    ${props.triggerValues?.["config.method"] === "GET"
-                        ? ""
-                        : `const data = {
-            ${Object.keys(props.inputs.properties ?? {})
-                            .map((key) => `${key}: ${key}`)
-                            .join(",\n            ")}
-        }`
+    const url = "${props.host}/executeWorkflow/${props.flowId}/${props.trigger.id}";
+    const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
+    ${(props.triggerValues?.["config.method"] === "GET" || Object.keys(props.inputs.properties ?? {}).length === 0)
+                        ? "const params = {}"
+                        : `const params = {
+        ${Object.keys(props.inputs.properties ?? {})
+                            .map((key) => key + ": " + key)
+                            .join(",\n\t\t")}
+    }`
                     }
     
     try {
         const response = await fetch(url, {
-            method: '${props.triggerValues?.["config.method"]}',
-            headers: {${props.triggerValues?.["config.method"] === "GET"
-                        ? ""
-                        : `
-                'Content-Type': '${props.triggerValues?.["config.requestContentType"]}',`
-                    }},
-            ${props.triggerValues?.["config.method"] === "GET" ? "" : "body: JSON.stringify(data)"}
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'BUILDSHIP_API_KEY': apiKey
+            },
+            body: JSON.stringify(params)
         });
         
         const result = await response.json();
