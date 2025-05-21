@@ -16,7 +16,7 @@ export interface Props {
   inputs?: NodeInput;
   /** Workflow output */
   output?: NodeInput;
-  isTriggerChanged: boolean;
+  isTriggerChanged?: boolean;
   /** Get Firebase ID token */
   getIdToken?: () => Promise<string> | undefined;
   flowLabel?: string;
@@ -32,6 +32,7 @@ export interface Props {
   };
   /** BuildShip schema to simple JSON schema */
   simplifySchema: (schema: any) => any;
+  toolkit: Toolkit;
 }
 
 type NodeInput = {
@@ -69,3 +70,12 @@ type NodeInput = {
 type Trigger = {
   [k: string]: any;
 };
+
+type Toolkit = {
+  id: string;
+  name: string;
+  description: string;
+  tools: Array<any>;
+  apiKeys: Array<string>;
+  [k: string]: any;
+}
