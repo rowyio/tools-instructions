@@ -1,8 +1,9 @@
-import { VibeCoderAgent } from "./vibe-coder.mdx"
+import { NodeJsIntegration } from "./nodejs-integration.mdx"
+import { GenericAgent } from "./generic-agent.mdx";
 import Claude from "./claude.mdx"
 
 export const AgentSelector = (props) => {
-  const [selectedOption, setSelectedOption] = props.useState("vibe-coder");
+  const [selectedOption, setSelectedOption] = props.useState("generic-agent");
 
   function camelize(str) {
     return str
@@ -21,18 +22,19 @@ export const AgentSelector = (props) => {
         value={selectedOption}
         onChange={(event) => setSelectedOption(event.target.value)}
         options={[
-          { value: "vibe-coder", render: "Vibe Coder Agent" },
-          { value: "11labs", render: "ElevenLabs" },
+          // { value: "vibe-coder", render: "Vibe Coder Agent" },
+          // { value: "11labs", render: "ElevenLabs" },
           { value: "claude", render: "Claude Desktop (MCP Server)" },
-          { value: "nodejs", render: "Node.js Fetch Implementation" },
-          { value: "python", render: "Python Requests Implementation" },
+          { value: "nodejs", render: "JavaScript SDK Implementation" },
+          // { value: "python", render: "Python Requests Implementation" },
           { value: "generic-agent", render: "Default Setup Guide" },
         ]}
       />
       <div style={{ backgroundColor: props.theme.palette.text[100], height: "1px", margin: "16px 0" }} />
       <div style={{ marginTop: "16px" }}></div>
-      { selectedOption === 'vibe-coder' && <VibeCoderAgent {...props} /> }
+      { selectedOption === 'nodejs' && <NodeJsIntegration {...props} /> }
       { selectedOption === 'claude' && <Claude {...props} /> }
+      { selectedOption === 'generic-agent' && <GenericAgent {...props} /> }
     </div>
   );
 };
