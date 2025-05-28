@@ -1,0 +1,95 @@
+import { useState, useMemo } from "react";
+
+{/**
+ * @param {import('../types/preview').Props} props - Component props
+ */}
+export const GenericAgent = (props) => {
+  const [endpointSelect, setEndpointSelect] = useState(props.toolkit?.tools?.[0]?.id);
+  const openApiSpec = useMemo(
+    () => JSON.stringify(props.toolFlowToOpenApi(props.toolkit?.tools, props.host), null, 2),
+    [props.toolkit?.tools, props.host],
+  );
+
+  const selectedTool = props.toolkit?.tools.find(tool => tool.id === endpointSelect);
+  const toolTriggerForSelectedTool = selectedTool?.triggers.find(t => t.type === 'tool-trigger');
+  const endpointUrl = `executeTool/${endpointSelect}/${toolTriggerForSelectedTool?.id}`;
+
+  return (
+    <>
+      <Typography
+        sx={(theme) => ({
+          color: theme.palette.text[900],
+          ...theme.typography.headline6,
+        })}
+      >
+        Default Setup Guide
+      </Typography>
+      <Typography
+        sx={(theme) => ({
+          color: theme.palette.text[400],
+          marginTop: "4px",
+          ...theme.typography.body,
+        })}
+      >
+        Each agent platform has its own setup process. Please select your specific agent from the
+        options above. Below you'll find universal specifications that work across all agent
+        platforms.
+      </Typography>
+
+      <Typography sx={(theme) => ({ marginTop: "8px" })}>Endpoint URL</Typography>
+      <Typography
+        sx={(theme) => ({ color: theme.palette.text[400], marginTop: "4px" })}
+      >
+        Each tool has a unique URL in the format <span style={{fontFamily: "monospace"}}>{"executeTool/{toolID}/{triggerId}"}</span>.
+        Select a specific tool from the dropdown below to view its complete endpoint URL.
+      </Typography>
+      <div style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: "8px",
+        marginTop: "8px"
+      }}>
+        <Select
+          options={props.toolkit?.tools.map(tool => ({ value: tool.id, render: tool.name }))}
+          sx={{ width: "150px" }}
+          value={endpointSelect}
+          onChange={(event) => {
+            setEndpointSelect(event.target.value);
+          }}
+        />
+        <div style={{ overflow: 'hidden' }}>
+          <ClipboardField
+            content={`${props.host}/${endpointUrl}`}
+          />
+        </div>
+      </div>
+
+      {/* OpenAPI */}
+      <Typography
+        sx={(theme) => ({
+          color: theme.palette.text[900],
+          marginTop: "24px",
+          ...theme.typography.body,
+        })}
+      >
+        OpenAPI Specification
+      </Typography>
+      <Box sx={{ position: "relative" }}>
+        <Box sx={{ marginTop: "4px", maxHeight: "600px", overflow: "auto" }}>
+          <CodeMirror
+            value={openApiSpec}
+            onChange={() => { }}
+            extensions={[props.cm.extensions.json()]}
+            codemirrorProps={{ readOnly: true, editable: false }}
+            wrapLines={true}
+            containerSx={{
+              "& .cm-editor": { borderRadius: "4px", backgroundColor: (t) => t.palette.text[50] },
+            }}
+          />
+        </Box>
+        <CopyButton content={openApiSpec} sx={{ position: "absolute", right: 16, top: 8 }} />
+      </Box>
+    </>
+  );
+};

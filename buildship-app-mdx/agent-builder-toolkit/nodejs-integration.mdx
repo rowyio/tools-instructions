@@ -1,0 +1,32 @@
+import { useState, useMemo } from "react";
+import { generateCodeSnippet } from "./generate-code-snippet.ts";
+
+{/**
+ * @param {import('../types/preview').Props} props - Component props
+ */}
+
+export const NodeJsIntegration = (props) => {
+  return (
+    <>
+      <Typography sx={{ marginTop: "16px" }}>Code Snippet</Typography>
+
+      <Typography
+        sx={(theme) => ({ color: theme.palette.text[400], marginTop: "4px" })}
+      >
+        Copy and paste the code snippet to your app or website. The snippet contains functions for each tool which you
+        can use to execute the tool.
+      </Typography>
+      <div style={{ marginTop: "16px" }}>
+        <CodeSamples
+          samples={[
+            {
+              code: `${generateCodeSnippet(`${props.host}/executeTool`, props.toolkit?.tools)}`,
+              language: "js",
+              label: "JavaScript",
+            },
+          ]}
+        />
+      </div>
+    </>
+  )
+};
